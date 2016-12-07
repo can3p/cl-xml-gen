@@ -1,3 +1,3 @@
 (defpackage #:cl-xml-gen
   (:use #:cl)
-  (:export #:xml))
+  (:export #:xml #:html))
