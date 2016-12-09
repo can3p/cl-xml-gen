@@ -12,7 +12,6 @@
 
 (is (xml '(div)) "<div></div>")
 (is (xml '(:div)) "<div></div>")
-(is (xml '("div")) "<div></div>")
 
 (is (xml '(:div (:class "xml-feed"))) "<div class=\"xml-feed\"></div>")
 (is (xml '(:div (:enabled t))) "<div enabled></div>")
@@ -47,8 +46,8 @@
 (is (html '(:html nil
             (:head nil (:title nil "title"))
             (:body nil
-             ((:div (:class "section") ("h2" nil "header")
-               ((:div (:class "subsection") ("h3" nil "subheader"))))))))
+             ((:div (:class "section") (:h2 nil "header")
+               ((:div (:class "subsection") (:h3 nil "subheader"))))))))
             (format nil "~:
 <!DOCTYPE html>
 <html>
@@ -64,6 +63,19 @@
     </div>
   </body>
 </html>"))
+
+(is (xml '(:something nil "Gone " (:wrong nil "here")))
+    "<something>Gone <wrong>here</wrong></something>")
+
+(is (xml '(:P NIL
+           ("An " (:b (:CLASS "c") "d"))))
+    "<p>An <b class=\"c\">d</b></p>")
+
+(is (xml '(:P NIL
+           (:An (:b "c") "d")))
+"<p>
+  <an b=\"c\">d</an>
+</p>")
 
 (finalize)
 

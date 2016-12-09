@@ -6,20 +6,20 @@
   (if (= indent 0) ""
       (concatenate 'string " " (make-indent (- indent 1)))))
 
-(defun xml (struct &optional (indent 0))
+(defun xml (struct &optional (indent 0) (is-inline nil))
   (if (stringp struct) struct
       (let* ((tag (normalize-tag-name (car struct)))
              (attrs (cadr struct))
              (children (normalize-children (cddr struct)))
              (s (make-string-output-stream))
-             (inline-children-p (not (null (find-if 'stringp children))))
-             (pad (make-indent indent))
+             (inline-children-p (or is-inline (not (null (find-if 'stringp children)))))
+             (pad (if is-inline "" (make-indent indent)))
              (end-pad (if inline-children-p "" pad))
              (children-separator (if inline-children-p "" #\Newline)))
         (format s "~a<~a~a>" pad tag (compile-attributes attrs))
         (loop for child in children
               do (format s "~a~a" children-separator
-                         (xml child (+ indent *indent-step*))))
+                         (xml child (+ indent *indent-step*) inline-children-p)))
         (when (> (length children) 0) (format s "~a" children-separator))
         (format s "~a</~a>" end-pad tag)
         (get-output-stream-string s))))
@@ -30,7 +30,6 @@
 (defun normalize-tag-name (tag)
   (cond
     ((symbolp tag) (string-downcase (symbol-name tag)))
-    ((stringp tag) (string-downcase tag))
     (t (error "unknown symbol type ~a" tag))))
 
 (defun normalize-children (children)
@@ -39,7 +38,6 @@
                           first
                           (cond
                             ((stringp second) (list second))
-                            ((stringp (car second)) (list second))
                             ((symbolp (car second)) (list second))
                             (t second)))))
     (reduce #'combine-two children :initial-value ())))
