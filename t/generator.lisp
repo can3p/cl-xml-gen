@@ -44,5 +44,26 @@
   <body>we're good</body>
 </html>"))
 
+(is (html '(:html nil
+            (:head nil (:title nil "title"))
+            (:body nil
+             ((:div (:class "section") ("h2" nil "header")
+               ((:div (:class "subsection") ("h3" nil "subheader"))))))))
+            (format nil "~:
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>title</title>
+  </head>
+  <body>
+    <div class=\"section\">
+      <h2>header</h2>
+      <div class=\"subsection\">
+        <h3>subheader</h3>
+      </div>
+    </div>
+  </body>
+</html>"))
+
 (finalize)
 

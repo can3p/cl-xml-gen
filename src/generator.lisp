@@ -12,15 +12,16 @@
              (attrs (cadr struct))
              (children (normalize-children (cddr struct)))
              (s (make-string-output-stream))
+             (inline-children-p (not (null (find-if 'stringp children))))
              (pad (make-indent indent))
-             (children-separator (if (not (null (find-if 'stringp children)))
-                                     "" #\Newline)))
+             (end-pad (if inline-children-p "" pad))
+             (children-separator (if inline-children-p "" #\Newline)))
         (format s "~a<~a~a>" pad tag (compile-attributes attrs))
         (loop for child in children
               do (format s "~a~a" children-separator
                          (xml child (+ indent *indent-step*))))
         (when (> (length children) 0) (format s "~a" children-separator))
-        (format s "</~a>" tag)
+        (format s "~a</~a>" end-pad tag)
         (get-output-stream-string s))))
 
 (defun html (struct)
@@ -38,6 +39,7 @@
                           first
                           (cond
                             ((stringp second) (list second))
+                            ((stringp (car second)) (list second))
                             ((symbolp (car second)) (list second))
                             (t second)))))
     (reduce #'combine-two children :initial-value ())))
